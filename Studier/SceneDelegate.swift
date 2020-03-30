@@ -20,14 +20,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
         // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView()
-
-        // Use a UIHostingController as window root view controller.
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
+            
+            let studySettings = StudySettings()
+            let select = Selector()
+            let contentView = ContentView().environmentObject(select).environmentObject(studySettings).environmentObject(ViewRouter())
+            
             window.rootViewController = UIHostingController(rootView: contentView)
             self.window = window
+            
             window.makeKeyAndVisible()
+            
+            let tapGesture = AnyGestureRecognizer(target: window, action:#selector(UIView.endEditing))
+            tapGesture.requiresExclusiveTouchType = false
+            tapGesture.cancelsTouchesInView = false
+            tapGesture.delegate = self as? UIGestureRecognizerDelegate //I don't use window as delegate to minimize possible side effects
+            window.addGestureRecognizer(tapGesture)
         }
     }
 
@@ -62,3 +71,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 
+extension SceneDelegate: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
